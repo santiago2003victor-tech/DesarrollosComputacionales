@@ -6,13 +6,61 @@ Repositorio de experimentos numéricos para la solución de ecuaciones en deriva
 
 | Archivo | Descripción |
 |---|---|
+| [`Investigacion_matrices.ipynb`](Investigacion_matrices.ipynb) | Exploración de matrices dispersas de SuiteSparse mediante visualización matricial y teoría de grafos, además de ejemplos introductorios de redes neuronales con PyTorch. |
 | [`NotebookProyInvestigacion.ipynb`](NotebookProyInvestigacion.ipynb) | Comparación de Steepest Descent y Conjugate Gradients para sistemas simétricos definidos positivos. |
 | [`GNP,_GMRES,_AMG.ipynb`](GNP,_GMRES,_AMG.ipynb) | Comparación de GMRES sin precondicionamiento, GMRES+AMG y GMRES+GNP en el Laplaciano 1D. |
 | [`tiempoGNP.ipynb`](tiempoGNP.ipynb) | Evaluación del tiempo de ejecución de GMRES y GMRES+AMG para diferentes tamaños del sistema, junto con pruebas de GNP. |
 | [`Smoothers.ipynb`](Smoothers.ipynb) | Estudio de suavizadores y de su efecto en la convergencia del método multigrid Ruge–Stüben. |
 | [`experimentos_ruge_stuben.py`](experimentos_ruge_stuben.py) | Experimentos reproducibles sobre la formación y transferencia entre niveles de una jerarquía Ruge–Stüben. |
 
-## 1. Comparación de Steepest Descent y Conjugate Gradients
+## 1. Investigación de matrices dispersas y redes neuronales
+
+**Archivo:** [`Investigacion_matrices.ipynb`](Investigacion_matrices.ipynb)
+
+Este notebook reúne dos actividades de exploración relacionadas con los temas de investigación del proyecto:
+
+### 1.1. Importación y análisis de matrices de SuiteSparse
+
+La primera parte utiliza ejemplos de matrices dispersas de la colección [SuiteSparse Matrix Collection](http://sparse.tamu.edu/). El flujo de trabajo es:
+
+1. Instalar `scipy`, `numpy` y `matplotlib`.
+2. Descomprimir el archivo de la matriz, por ejemplo `bcspwr01.tar.gz`.
+3. Localizar el archivo `.mtx` dentro del directorio descomprimido.
+4. Importar la matriz con `scipy.io.mmread`.
+5. Consultar sus dimensiones y el número de elementos no nulos.
+6. Visualizar su estructura dispersa con `matplotlib.pyplot.spy`.
+
+Después, la matriz se interpreta como un grafo utilizando `NetworkX`:
+
+- cada fila o columna representa un nodo;
+- una entrada no nula representa una conexión entre nodos;
+- se calculan el número de nodos y de aristas;
+- se dibuja el grafo completo y un subgrafo con los primeros 50 nodos;
+- se prueba una distribución espacial mediante `spring_layout`.
+
+Esta parte permite relacionar la estructura algebraica de una matriz dispersa con su representación como red y observar patrones de conectividad que no son evidentes en una tabla de valores.
+
+### 1.2. Ejemplos de implementación de redes neuronales con PyTorch
+
+La segunda parte introduce la construcción y entrenamiento de redes neuronales:
+
+1. Se entrena una capa lineal con los datos `x = [1, 2, 3, 4]` y `y = [3, 5, 7, 9]`, que siguen la relación:
+
+   ```text
+   y = 2x + 1
+   ```
+
+2. Se utiliza el error cuadrático medio (`MSELoss`) como función de pérdida y descenso de gradiente estocástico (`SGD`) con una tasa de aprendizaje `lr = 0.01`.
+3. Durante 1000 épocas, PyTorch calcula el gradiente mediante backpropagation y actualiza el peso y el bias del modelo.
+4. Al finalizar, los parámetros aprendidos deben aproximarse a `w = 2` y `b = 1`.
+5. Se define una red no lineal con arquitectura `2 → 8 → 1`, compuesta por:
+   - una capa lineal de 2 entradas y 8 neuronas;
+   - una activación `ReLU`;
+   - una capa lineal de 8 neuronas a una salida.
+
+El ejemplo muestra cómo una red aprende una relación lineal y cómo se organiza una arquitectura con capa oculta y activación no lineal. También sirve como base para integrar modelos de aprendizaje automático con los experimentos de matrices y métodos iterativos del repositorio.
+
+## 2. Comparación de Steepest Descent y Conjugate Gradients
 
 **Archivo:** [`NotebookProyInvestigacion.ipynb`](NotebookProyInvestigacion.ipynb)
 
@@ -39,7 +87,7 @@ cuando `A` es una matriz simétrica definida positiva (SPD):
 
 **Conclusión esperada:** al aumentar el número de condición, Steepest Descent se vuelve más lento; Conjugate Gradients aprovecha mejor la distribución espectral y converge en menos iteraciones.
 
-## 2. GMRES con AMG y GNP
+## 3. GMRES con AMG y GNP
 
 **Archivo:** [`GNP,_GMRES,_AMG.ipynb`](GNP,_GMRES,_AMG.ipynb)
 
@@ -61,7 +109,7 @@ El notebook también incluye comandos para instalar y ejecutar el código de GNP
 
 > Nota: las celdas de entrenamiento de GNP contienen actualmente un marcador (`código que entrena GNP`); por ello, el entrenamiento debe configurarse antes de considerarlo un flujo completamente automatizado.
 
-## 3. Medición de tiempos para GMRES y AMG
+## 4. Medición de tiempos para GMRES y AMG
 
 **Archivo:** [`tiempoGNP.ipynb`](tiempoGNP.ipynb)
 
@@ -76,7 +124,7 @@ Este notebook repite el problema del Laplaciano 1D y concentra el análisis en e
 
 También conserva las pruebas con GMRES+GNP para contrastar sus resultados con AMG. Su propósito es determinar cómo escala cada alternativa al crecer el número de incógnitas.
 
-## 4. Influencia de los suavizadores en Ruge–Stüben
+## 5. Influencia de los suavizadores en Ruge–Stüben
 
 **Archivo:** [`Smoothers.ipynb`](Smoothers.ipynb)
 
@@ -95,7 +143,7 @@ Un suavizador reduce principalmente los errores de alta frecuencia durante las e
 
 **Interpretación:** Gauss–Seidel simétrico y SOR muestran una reducción rápida del residual; Jacobi converge de manera más progresiva. La selección independiente del suavizador previo y posterior permite estudiar el equilibrio entre costo por iteración y velocidad de convergencia.
 
-## 5. Formación de la jerarquía Ruge–Stüben
+## 6. Formación de la jerarquía Ruge–Stüben
 
 **Archivo:** [`experimentos_ruge_stuben.py`](experimentos_ruge_stuben.py)
 
@@ -168,7 +216,7 @@ Repite el análisis para mallas `4x2`, `4x3`, `4x4` y `5x4`. Compara la jerarqu�
 Se requiere Python 3.9 o posterior y las siguientes bibliotecas:
 
 ```bash
-python -m pip install numpy scipy pandas matplotlib pyamg jupyter
+python -m pip install numpy scipy pandas matplotlib networkx pyamg jupyter torch
 ```
 
 Para ejecutar los notebooks:
